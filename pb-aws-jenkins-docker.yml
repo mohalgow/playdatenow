@@ -1,0 +1,117 @@
+---
+- hosts: all
+  become: true
+  vars:
+    container_count: 4
+    default_container_name: jenkins
+    default_container_image: ubuntu
+    default_container_command: sleep 1d
+
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+
+    - name: Pull default Docker image
+      community.docker.docker_image:
+        name: "{{ default_container_image }}"
+        source: pull
+
+    - name: Create default containers
+      community.docker.docker_container:
+        name: "{{ default_container_name }}{{ item }}"
+        image: "{{ default_container_image }}"
+        command: "{{ default_container_command }}"
+        state: present
+      with_sequence: count={{ container_count }}
+
+    - name: Install JRE and JDK
+      apt: 
+        name: "{{ item }}"
+        update_cache: yes
+        install_recommends: no
+      items:
+       - "{{ jenkins_jre }}"
+       - "{{ jenkins_jdk }}"
+
+    - name: Add APT key
+      apt_key:
+        url: https://pkg.jenkins.io/debian/jenkins-ci.org.key
+
+    - name: Copy jenkins.list to /etc/apt/sources.list.d/jenkins.list
+      copy:
+        src: jenkins.list
+        dest: /etc/apt/sources.list.d/jenkins.list
+
+    - name: Install Jenkins
+      apt: 
+        name: jenkins
+        update_cache: yes
+        install_recommends: no
+    
+    - name: Install package dependencies.
+      package: name={{ item }} state=present
+      with_items:
+        - python
+        - unzip
+
+    - name: Download the awscli bundle.
+      get_url: url=https://s3.amazonaws.com/aws-cli/awscli-bundle.zip dest=/tmp/awscli-bundle.zip
+      register: aws_cli_download_bundle
+
+    - name: Unarchive the installer.
+      unarchive: src=/tmp/awscli-bundle.zip dest=/tmp copy=no creates=/tmp/awscli-bundle
+      when: aws_cli_download_bundle.changed
+      register: aws_cli_unarchive_installer
+
+    - name: Install awscli package.
+      shell: python /tmp/awscli-bundle/install -i /usr/local/aws -b /usr/bin/aws
+      args:
+        creates: /usr/bin/aws
+      when: aws_cli_unarchive_installer.changed
+
+    - name: Configure AWS.
+      shell: aws configure set {{ item.key }} {{ item.value }} --profile {{ aws_profile }}
+      no_log: True
+      with_dict:
+        aws_access_key_id: "{{ aws_access_key }}"
+        aws_secret_access_key: "{{ aws_secret_key }}"
+        region: us-east-1
+        format: "{{ aws_format }}"
+      become_user: "{{ aws_system_user }}"
+      changed_when: false
