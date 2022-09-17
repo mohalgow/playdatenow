@@ -14,40 +14,29 @@ pipeline {
 	}
 
 	stages {
-
-		stage('Build') {
-
-			steps {
-				sh 'docker build -t algow/playdate2:latest .'
-			}
-		}
-
-		stage('Login') {
-
-			steps {
-				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-			}
-		}
-
-		stage('Push') {
-
-			steps {
-				sh 'docker push algow/playdate2:latest'
-			}
-		}
-
-        stage('Deploy') {
+        stage('Build') {
             steps {
-                sh 'aws configure set region us-east-1	'
-                sh 'aws elasticbeanstalk create-application-version --application-name $AWS_EB_APP_NAME --version-label $AWS_EB_APP_VERSION --source-bundle S3Bucket=$AWS_S3_BUCKET,S3Key=$ARTIFACT_NAME'
-                sh 'aws elasticbeanstalk update-environment --application-name $AWS_EB_APP_NAME --environment-name $AWS_EB_ENVIRONMENT_NAME --version-label $AWS_EB_APP_VERSION'
+                sh 'echo "Building"'
+                sh 'echo $AWS_ACCESS_KEY_ID'
+                sh 'echo $AWS_SECRET_ACCESS_KEY'
             }
-	}
+        }
+        stage('Test') {
+            steps {
+                sh 'echo "Testing"'
+            }
+        }
+        stage('Publish') {
+            steps {
+                sh 'echo "Publishing"'
+            }
+            post {
+                success {
+                    sh 'echo "Deploying to EB"'
+                    sh 'sudo chmod 775 ./deploy_app.sh'
+                    sh './deploy_app.sh'
+                }
+            }
+        }
     }
-	post {
-		always {
-			sh 'docker logout'
-		}
-	}
-
 }
