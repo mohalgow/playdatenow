@@ -20,7 +20,6 @@ pipeline {
                 sh 'aws elasticbeanstalk update-environment --application-name $AWS_EB_APP_NAME --environment-name $AWS_EB_ENVIRONMENT_NAME --version-label $AWS_EB_APP_VERSION'
             }
 	}
-    }
 	post {
 		always {
 			sh 'docker logout'
