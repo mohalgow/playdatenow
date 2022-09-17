@@ -18,7 +18,7 @@ pipeline {
 		stage('Build') {
 
 			steps {
-				sh 'docker build -t algow/playdate:latest .'
+				sh 'docker build -t algow/playdate2:latest .'
 			}
 		}
 
@@ -32,7 +32,7 @@ pipeline {
 		stage('Push') {
 
 			steps {
-				sh 'docker push algow/playdate:latest'
+				sh 'docker push algow/playdate2:latest'
 			}
 		}
 
