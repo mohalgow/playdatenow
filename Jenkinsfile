@@ -12,30 +12,7 @@ pipeline {
         AWS_EB_ENVIRONMENT_NAME = 'Playdate-env'
         AWS_EB_APP_VERSION = "${BUILD_ID}"
 	}
-
-	stages {
-
-		stage('Build') {
-
-			steps {
-				sh 'docker build -t algow/playdate2:latest .'
-			}
-		}
-
-		stage('Login') {
-
-			steps {
-				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-			}
-		}
-
-		stage('Push') {
-
-			steps {
-				sh 'docker push algow/playdate2:latest'
-			}
-		}
-
+	
         stage('Deploy') {
             steps {
                 sh 'aws configure set region us-east-1	'
