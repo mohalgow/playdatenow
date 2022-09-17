@@ -1,3 +1,12 @@
 {
-    "AWSEBDockerrunVersion": "1"
-  }
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "algow/playdate2:latest",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "80"
+    }
+  ]
+}
