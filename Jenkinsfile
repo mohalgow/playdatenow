@@ -6,7 +6,7 @@ pipeline {
 		DOCKERHUB_CREDENTIALS=credentials('docker-token')
 		AWS_ACCESS_KEY_ID     = credentials('Access_key_ID')
   		AWS_SECRET_ACCESS_KEY = credentials('Secret_access_key')
-		ARTIFACT_NAME = 'playdatenow_v03b-0.0.1-SNAPSHOT.war'
+		ARTIFACT_NAME = 'Dockerrun.aws.json'
 		AWS_S3_BUCKET = 'playdate-s3'
 		AWS_EB_APP_NAME = 'playdate'
         AWS_EB_ENVIRONMENT_NAME = 'Playdate-env'
