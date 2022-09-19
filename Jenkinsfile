@@ -8,8 +8,8 @@ pipeline {
   		AWS_SECRET_ACCESS_KEY = credentials('Secret_access_key')
 		ARTIFACT_NAME = 'Dockerrun.aws.json'
 		AWS_S3_BUCKET = 'playdate-s3'
-		AWS_EB_APP_NAME = 'playdate-test'
-        AWS_EB_ENVIRONMENT_NAME = 'Playdatetest-env'
+		AWS_EB_APP_NAME = 'playdate-tt'
+        AWS_EB_ENVIRONMENT_NAME = 'Playdatett-env'
         AWS_EB_APP_VERSION = "${BUILD_ID}"
 	}
 
